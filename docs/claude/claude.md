@@ -1,7 +1,7 @@
 # Project Context for Claude
 
 ## Project Overview
-This is a homelab infrastructure project for testing, learning, and development. The infrastructure is managed using Terraform with libvirt/KVM/QEMU virtualisation on Arch Linux. The project is designed to be a portfolio piece demonstrating infrastructure as code (IaC) practices and Active Directory synchronisation capabilities.
+This is the Nexus Lab infrastructure project for testing, learning, and development. The infrastructure is managed using Terraform with libvirt/KVM/QEMU virtualisation on Arch Linux. The project is designed to be a portfolio piece demonstrating infrastructure as code (IaC) practices and Active Directory synchronisation capabilities.
 
 ## Project Methodology
 This project is run as a **professional software/infrastructure project** with:
@@ -15,18 +15,31 @@ This project is run as a **professional software/infrastructure project** with:
 
 ## Current Status
 **Phase:** 1 - Foundation Infrastructure Setup  
-**Stage:** 1.1 - Environment Preparation  
-**Status:** Not Started  
-**Date Started:** 14 October 2025  
-**Location:** `/mnt/Dev/`  
+**Stage:** 1.2.2 - Create Network Module  
+**Status:** In Progress  
+**Date Started:** 17 October 2025  
+**Location:** `/mnt/Dev/nexus-lab/`  
 **Blockers:** None
 
 ### Progress Summary
-- [x] Folder structure created (14 Oct 2025)
-- [x] Project plan created (14 Oct 2025)
-- [x] Documentation templates established (14 Oct 2025)
-- [ ] Stage 1.1: Environment Preparation
-- [ ] Stage 1.2: Network Module Development
+- [x] Project structure created and consolidated into Nexus repos (17 Oct 2025)
+- [x] Stage 1.1: Environment Preparation (17 Oct 2025)
+  - [x] Installed qemu-full, libvirt, virt-manager, Terraform
+  - [x] Enabled and started libvirtd service
+  - [x] Verified KVM support and permissions
+  - [x] Downloaded Windows Server 2025 ISO
+  - [x] Verified ISO checksum
+  - [x] Initialised Git repositories (nexus, nexus-lab, nexus-adsync)
+  - [x] Configured SSH authentication with GitHub
+  - [x] Documented Git workflow
+- [x] Stage 1.2.1: Design Network Architecture (17 Oct 2025)
+  - [x] Defined dual-subnet architecture (10.0.100.0/24 and 10.0.101.0/24)
+  - [x] Specified domain names (corp.lab and prod.lab)
+  - [x] Allocated static IPs for all VMs
+  - [x] Documented network topology and routing strategy
+  - [x] Created architecture diagram and overview
+- [ ] Stage 1.2.2: Create Network Module
+- [ ] Stage 1.2.3: Test Network Module
 - [ ] Stage 1.3: Domain Controller Module Development
 - [ ] Stage 1.4: Infrastructure Project Development
 - [ ] Stage 1.5: Documentation and Git Workflow
@@ -34,21 +47,35 @@ This project is run as a **professional software/infrastructure project** with:
 ## Project Structure
 
 ### Repository Organisation
-The project uses **separate Git repositories**:
+The project uses **separate Git repositories** under the Nexus project umbrella:
 
-1. **homelab-infrastructure** - Infrastructure and Terraform code (this repository)
-2. **adsync-tool** - PowerShell-based Active Directory synchronisation service (separate repository)
+1. **nexus** - Overall project documentation, vision, and architecture (main repository)
+2. **nexus-lab** - Infrastructure code and Terraform modules (this repository)
+3. **nexus-adsync** - PowerShell-based Active Directory synchronisation service
+
+**GitHub Organisation:** https://github.com/jameslunardi
 
 ### Folder Structure
 ```
 /mnt/Dev/
-├── homelab-infrastructure/          # Git repo for infrastructure
+├── nexus/                           # Git repo for project documentation
+│   ├── nexus-vision.md              # Project vision and goals
+│   ├── architecture.drawio          # Complete architecture diagram
+│   ├── architecture-overview.md     # Architecture documentation
+│   └── README.md
+│
+├── nexus-lab/                       # Git repo for infrastructure
 │   ├── docs/                        # Documentation
 │   │   ├── architecture/            # Architecture diagrams, design decisions
+│   │   │   └── network-design.md    # Network architecture specification
 │   │   ├── setup/                   # Setup guides, prerequisites
+│   │   │   ├── iso-details.md       # ISO documentation
+│   │   │   └── git-workflow.md      # Git workflow guide
 │   │   ├── runbooks/                # Operational procedures
 │   │   ├── project-plans/           # Project planning documents
+│   │   │   └── plan.md              # Master project plan
 │   │   └── claude/                  # Claude context files
+│   │       └── claude.md            # This file
 │   ├── terraform/                   # Terraform code
 │   │   ├── modules/                 # Reusable Terraform modules
 │   │   │   ├── domain-controller/   # Domain Controller module
@@ -61,29 +88,38 @@ The project uses **separate Git repositories**:
 │   ├── images/                      # VM base images, ISOs
 │   └── README.md
 │
-├── adsync-tool/                     # Git repo for ADSync application
+├── nexus-adsync/                    # Git repo for ADSync application
 │   ├── src/                         # PowerShell source code
-│   ├── tests/                       # Tests
+│   ├── tests/                       # Pester tests
 │   ├── docs/                        # Application documentation
 │   └── README.md
 │
 └── vm-storage/                      # Not in Git - actual VM disk storage
     ├── domain-controllers/          # Domain Controllers
-    │   ├── dc01.qcow2               # Domain Controller 1
-    │   └── dc02.qcow2               # Domain Controller 2
+    │   ├── D1DC01.qcow2             # Domain Controller 1 (corp.lab)
+    │   └── D2DC01.qcow2             # Domain Controller 2 (prod.lab)
     └── member-servers/              # Member servers
-        └── adsync01.qcow2           # AD Sync Server
+        └── ADSYNC01.qcow2           # AD Sync Server (prod.lab)
 ```
 
 ## Technical Stack
 
 ### Virtualisation
-- **Platform:** Arch Linux
+- **Platform:** Arch Linux with Gnome 49
 - **Hypervisor:** KVM (Kernel-based Virtual Machine)
 - **Emulator:** QEMU
 - **Management:** libvirt
 - **GUI Tool:** virt-manager (for visual management and console access)
 - **IaC Tool:** Terraform with libvirt provider
+
+### Network Architecture
+- **Domain 1 (corp.lab):** 10.0.100.0/24
+  - D1DC01: 10.0.100.10 (Domain Controller)
+- **Domain 2 (prod.lab):** 10.0.101.0/24
+  - D2DC01: 10.0.101.10 (Domain Controller)
+  - ADSYNC01: 10.0.101.20 (Member Server)
+- **Routing:** Libvirt built-in routing between networks
+- **DHCP:** Disabled (all VMs use static IPs)
 
 ### Infrastructure Design Philosophy
 - **Terraform Modules:** Organised by server role (domain-controller, member-server, network)
@@ -102,18 +138,18 @@ This hybrid approach allows:
 **Primary Goal:** Establish the core infrastructure and deploy two domain controllers
 
 **Stages:**
-1. Environment Preparation - Install tools, obtain ISOs, initialise Git
-2. Network Module Development - Create reusable network module
-3. Domain Controller Module Development - Create reusable DC module
-4. Infrastructure Project Development - Deploy complete infrastructure
-5. Documentation and Git Workflow - Complete Phase 1 documentation
+1. ✅ Environment Preparation - Install tools, obtain ISOs, initialise Git
+2. 🔄 Network Module Development - Create reusable network module
+3. ⏳ Domain Controller Module Development - Create reusable DC module
+4. ⏳ Infrastructure Project Development - Deploy complete infrastructure
+5. ⏳ Documentation and Git Workflow - Complete Phase 1 documentation
 
 **Key Deliverables:**
-- Working libvirt/KVM environment
-- Network and Domain Controller Terraform modules
-- Two operational domain controllers in separate domains
-- Complete documentation and runbooks
-- Clean Git repository with proper commits
+- ✅ Working libvirt/KVM environment
+- 🔄 Network and Domain Controller Terraform modules
+- ⏳ Two operational domain controllers in separate domains
+- ✅ Complete documentation and runbooks
+- ✅ Clean Git repository with proper commits
 
 ### Phase 2: ADSync Tool Infrastructure
 **Duration Estimate:** 1-2 weeks  
@@ -127,38 +163,55 @@ This hybrid approach allows:
 ### Phase 3: ADSync Tool Development
 **Duration Estimate:** 3-4 weeks  
 **Primary Goal:** Develop and test the PowerShell synchronisation service
-**Note:** Will have separate project plan in adsync-tool repository
+**Note:** Will have separate project plan in nexus-adsync repository
 
-## Initial Project: ADSync Tool
-
-### Purpose
-Develop a PowerShell-based service to synchronise user accounts between two separate Active Directory domains.
-
-### Infrastructure Requirements
-**Phase 1 - Infrastructure Project:**
-- 2x Windows Server 2022 VMs configured as Domain Controllers
-- Each DC in a separate domain
-- Network configuration to allow communication
-
-**Phase 2 - ADSync Project:**
-- 1x Windows Server 2022 VM as a member server
-- Runs the ADSync PowerShell service
-- Member of one domain, with trust/connectivity to both
+## Infrastructure Specifications
 
 ### VM Specifications
-- **dc01.qcow2** - Domain Controller for Domain 1
-- **dc02.qcow2** - Domain Controller for Domain 2  
-- **adsync01.qcow2** - Tool server running the synchronisation service
+- **D1DC01** (Domain Controller 1)
+  - Domain: corp.lab
+  - IP: 10.0.100.10
+  - OS: Windows Server 2025
+  - Role: Domain Controller, DNS Server
+  
+- **D2DC01** (Domain Controller 2)
+  - Domain: prod.lab
+  - IP: 10.0.101.10
+  - OS: Windows Server 2025
+  - Role: Domain Controller, DNS Server
+
+- **ADSYNC01** (Member Server - Phase 2)
+  - Domain: prod.lab (member)
+  - IP: 10.0.101.20
+  - OS: Windows Server 2025
+  - Role: AD Sync Tool host
+
+### Active Directory Domains
+- **corp.lab** (Domain 1)
+  - NetBIOS: CORP
+  - Forest: Separate forest
+  - DC: D1DC01
+
+- **prod.lab** (Domain 2)
+  - NetBIOS: PROD
+  - Forest: Separate forest
+  - DC: D2DC01
+
+**Domain Relationship:**
+- Completely separate forests (no trust)
+- Cross-domain connectivity via routing
+- ADSync tool synchronises users from corp.lab to prod.lab
 
 ## Portfolio Goals
-Both the infrastructure code and the ADSync tool are intended as portfolio pieces to demonstrate:
-- Infrastructure as Code practices
-- Documentation quality
+The Nexus project (infrastructure + ADSync tool) is intended as a portfolio piece to demonstrate:
+- Infrastructure as Code practices with Terraform
+- Documentation quality and project management
 - Active Directory expertise
 - PowerShell development
 - Terraform module design
 - Network architecture
 - Professional project management
+- AI-assisted development workflow
 
 ## Roles and Responsibilities
 
@@ -212,22 +265,33 @@ Both the infrastructure code and the ADSync tool are intended as portfolio piece
 ## Key Design Decisions
 
 ### Why Separate Repositories?
-The infrastructure and application code serve different purposes:
+The infrastructure, application, and project documentation serve different purposes:
 - Infrastructure can be reused for other projects
 - ADSync tool is a standalone application
 - Each can be version-controlled independently
 - Clearer portfolio presentation
+- Main nexus repo provides project-level documentation
 
-### Why Hybrid Terraform Organisation?
-- **Modules by role:** Promotes reusability and follows infrastructure patterns
-- **Projects by deployment:** Matches actual workflow and dependencies
-- This provides both flexibility and clarity
+### Why Simplified Architecture (Local KVM vs Hybrid Cloud)?
+Original vision included VMware + Azure hybrid cloud:
+- Simplified to focus on core skills (IaC, PowerShell, AD)
+- Faster development and testing cycles
+- Lower complexity and cost
+- Local environment sufficient for portfolio demonstration
+- Can demonstrate cloud principles without cloud costs
+- Hybrid cloud can be added in future phase if desired
 
-### Why vm-storage Outside Git?
-- VM disk files are large binary files
-- They change frequently during operation
-- Not suitable for version control
-- Can be recreated from Terraform code
+### Why Separate Subnets?
+- More realistic enterprise scenario
+- Demonstrates multi-network management
+- Shows routing capabilities
+- Better simulates real AD sync scenarios
+
+### Why No DHCP Initially?
+- Only three VMs, all infrastructure servers
+- Static IPs are standard for servers
+- Simpler configuration and troubleshooting
+- Can be added later if needed
 
 ## Tools and Technologies to Use
 
@@ -265,16 +329,17 @@ git add .                           # Stage all changes
 git commit -m "message"             # Commit changes
 git tag v1.0-phase1                 # Create tag
 git log --oneline                   # View commit history
+git push origin main                # Push to GitHub
 ```
 
 ## Risk Management
 
 ### Key Risks Identified
-1. **Windows Server licensing** - Mitigated by using evaluation edition
+1. **Windows Server licensing** - Mitigated by using evaluation edition (180 days)
 2. **KVM/libvirt compatibility** - Mitigated by early testing
 3. **Insufficient hardware resources** - Monitor and adjust VM specs
 4. **Time constraints** - Prioritise core functionality
-5. **Terraform state corruption** - Regular backups, version control
+5. **Terraform state corruption** - Version control, regular backups
 6. **AD configuration complexity** - Thorough research and documentation
 
 ## Communication and Updates
@@ -287,13 +352,6 @@ Claude should:
 4. Remind about documentation if needed
 5. Update internal progress tracking
 
-### Weekly Reviews (Suggested)
-- Review completed tasks
-- Update project plan with actual progress
-- Identify blockers or issues
-- Plan next week's priorities
-- Update claude.md with current status
-
 ### Stage Completions
 - Verify all acceptance criteria met
 - Update project plan
@@ -302,57 +360,66 @@ Claude should:
 - Plan next stage activities
 
 ## Important Notes
-- All file paths in this documentation use `/mnt/Dev/` as the base
-- The user's development directory is mounted at `/mnt/Dev/`
+- All file paths use `/mnt/Dev/` as the base
 - Always use UK English for documentation
 - Focus on clean, professional documentation for portfolio purposes
 - Test thoroughly before committing code
 - This is run as a real professional project with proper planning and tracking
+- Git authentication uses SSH with GitHub
+- User email for Git: 217091044+jameslunardi@users.noreply.github.com
 
 ## Key Documents
 
 ### Essential Reading
 - **This file** - Overall project context and current status
-- **/mnt/Dev/homelab-infrastructure/docs/project-plans/plan.md** - Detailed project plan with all stages and tasks
-- **/mnt/Dev/homelab-infrastructure/README.md** - Repository overview
+- **/mnt/Dev/nexus-lab/docs/project-plans/plan.md** - Detailed project plan with all stages and tasks
+- **/mnt/Dev/nexus/nexus-vision.md** - Project vision and goals
+- **/mnt/Dev/nexus-lab/docs/architecture/network-design.md** - Network architecture specification
+- **/mnt/Dev/nexus/architecture-overview.md** - Complete architecture documentation
+
+### Documentation Created
+- ISO details (docs/setup/iso-details.md)
+- Git workflow guide (docs/setup/git-workflow.md)
+- Network architecture design (docs/architecture/network-design.md)
+- Architecture overview (in nexus repo)
 
 ### To Be Created During Project
-- Architecture documentation (docs/architecture/)
-- Setup guides (docs/setup/)
+- Network module README (terraform/modules/network/README.md)
+- Domain Controller module README (terraform/modules/domain-controller/README.md)
+- Member Server module README (terraform/modules/member-server/README.md)
 - Runbooks (docs/runbooks/)
-- Module READMEs (terraform/modules/*/README.md)
 
 ## Reference Information
 - **Terraform Provider:** [dmacvicar/libvirt](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs)
 - **User:** lunardi
-- **Project Start Date:** 14 October 2025
-- **Current Date:** 14 October 2025
+- **Project Start Date:** 17 October 2025
+- **GitHub:** https://github.com/jameslunardi
 
 ## Quick Reference
 
 ### Directory Paths
 ```
-Infrastructure Code:     /mnt/Dev/homelab-infrastructure/
-Network Module:          terraform/modules/network/
-DC Module:               terraform/modules/domain-controller/
-Member Server Module:    terraform/modules/member-server/
-Infrastructure Project:  terraform/projects/infrastructure/
-ADSync Project:          terraform/projects/adsync/
-Documentation:           docs/
-Project Plans:           docs/project-plans/
+Main Documentation:      /mnt/Dev/nexus/
+Infrastructure Code:     /mnt/Dev/nexus-lab/
+ADSync Code:             /mnt/Dev/nexus-adsync/
+Network Module:          /mnt/Dev/nexus-lab/terraform/modules/network/
+DC Module:               /mnt/Dev/nexus-lab/terraform/modules/domain-controller/
+Member Server Module:    /mnt/Dev/nexus-lab/terraform/modules/member-server/
+Infrastructure Project:  /mnt/Dev/nexus-lab/terraform/projects/infrastructure/
+ADSync Project:          /mnt/Dev/nexus-lab/terraform/projects/adsync/
+Documentation:           /mnt/Dev/nexus-lab/docs/
+Project Plans:           /mnt/Dev/nexus-lab/docs/project-plans/
 VM Storage:              /mnt/Dev/vm-storage/
 ```
 
 ### Next Immediate Steps
-1. Start Stage 1.1: Environment Preparation
-2. Install qemu-full, libvirt, virt-manager
-3. Install Terraform
-4. Enable libvirtd service
-5. Download Windows Server 2022 ISO
-6. Initialise Git repository
+1. Create network module structure
+2. Write network module Terraform code
+3. Test network module
+4. Document network module
 
 ---
 
-**Document Version:** 2.0  
-**Last Updated:** 14 October 2025  
-**Next Review:** On completion of Stage 1.1
+**Document Version:** 3.0  
+**Last Updated:** 17 October 2025  
+**Next Review:** On completion of Stage 1.2
