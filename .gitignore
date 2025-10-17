@@ -1,0 +1,34 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# VM Images and Disks
+*.iso
+*.qcow2
+*.img
+*.vmdk
+
+# Sensitive Files
+*.key
+*.pem
+secrets/
+*.secret
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
